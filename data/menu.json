@@ -1,0 +1,41 @@
+{
+  "categories": [
+    {
+      "name": "招牌鸡尾酒",
+      "items": [
+        { "id": "c1", "name": "Mojito 莫吉托", "price": 58, "desc": "朗姆酒 / 薄荷 / 青柠" },
+        { "id": "c2", "name": "Margarita 玛格丽特", "price": 62, "desc": "龙舌兰 / 君度 / 青柠" },
+        { "id": "c3", "name": "Negroni 尼格罗尼", "price": 68, "desc": "金酒 / 苦艾酒 / 金巴利" },
+        { "id": "c4", "name": "Old Fashioned 古典", "price": 70, "desc": "波本威士忌 / 苦精 / 橙皮" },
+        { "id": "c5", "name": "Whisky Sour 威士忌酸", "price": 65, "desc": "威士忌 / 柠檬 / 蛋清" }
+      ]
+    },
+    {
+      "name": "啤酒",
+      "items": [
+        { "id": "b1", "name": "精酿 IPA", "price": 45, "desc": "扎啤 500ml" },
+        { "id": "b2", "name": "小麦白啤", "price": 42, "desc": "扎啤 500ml" },
+        { "id": "b3", "name": "科罗娜 Corona", "price": 38, "desc": "瓶装 330ml" },
+        { "id": "b4", "name": "1664 蓝瓶", "price": 40, "desc": "瓶装 330ml" }
+      ]
+    },
+    {
+      "name": "无酒精 & 软饮",
+      "items": [
+        { "id": "s1", "name": "Virgin Mojito", "price": 38, "desc": "无酒精莫吉托" },
+        { "id": "s2", "name": "鲜榨橙汁", "price": 32, "desc": "" },
+        { "id": "s3", "name": "气泡水", "price": 25, "desc": "" },
+        { "id": "s4", "name": "可乐 / 雪碧", "price": 18, "desc": "" }
+      ]
+    },
+    {
+      "name": "小食",
+      "items": [
+        { "id": "f1", "name": "炸薯条", "price": 32, "desc": "" },
+        { "id": "f2", "name": "鸡翅 (6只)", "price": 48, "desc": "" },
+        { "id": "f3", "name": "综合坚果", "price": 28, "desc": "" },
+        { "id": "f4", "name": "原味爆米花", "price": 22, "desc": "" }
+      ]
+    }
+  ]
+}

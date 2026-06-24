@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🍸 点单 | The Bar</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="customer">
+  <header class="c-header">
+    <h1>🍸 The Bar</h1>
+    <p>扫码点单 · 自助下单</p>
+  </header>
+
+  <div class="seat-bar" id="seatBar">
+    <label for="table">座位号 / 桌号 <span id="seatHint" class="muted"></span></label>
+    <input id="table" type="text" inputmode="text" placeholder="例如：A3 / 吧台2" />
+  </div>
+
+  <main id="menu" class="menu"></main>
+
+  <!-- 底部购物车栏 -->
+  <div id="cartBar" class="cart-bar hidden">
+    <div class="cart-summary" id="cartSummary">
+      <span id="cartCount">0</span> 件 · ¥<span id="cartTotal">0</span>
+    </div>
+    <button id="openCart" class="btn-primary">查看购物车</button>
+  </div>
+
+  <!-- 购物车弹层 -->
+  <div id="cartModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-head">
+        <h2>购物车</h2>
+        <button id="closeCart" class="icon-btn">✕</button>
+      </div>
+      <div id="cartItems" class="cart-items"></div>
+      <textarea id="note" placeholder="备注（例如：少冰、不要香菜...）"></textarea>
+      <div class="modal-foot">
+        <div class="total-line">合计 <strong>¥<span id="modalTotal">0</span></strong></div>
+        <button id="submitOrder" class="btn-primary big">提交订单</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下单成功 -->
+  <div id="successModal" class="modal hidden">
+    <div class="modal-content center">
+      <div class="success-icon">✓</div>
+      <h2>下单成功！</h2>
+      <p class="order-no" id="successNo"></p>
+      <p class="muted">请耐心等待，服务员会尽快为您送上 🍻</p>
+      <button id="newOrder" class="btn-primary big">再点一单</button>
+    </div>
+  </div>
+
+  <script src="customer.js"></script>
+</body>
+</html>

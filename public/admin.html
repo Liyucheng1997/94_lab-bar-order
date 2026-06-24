@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商家后台 | The Bar</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="admin">
+  <header class="a-header">
+    <h1>🍸 商家后台</h1>
+    <div class="a-controls">
+      <label class="switch-label">
+        <input type="checkbox" id="autoPrint" />
+        新订单自动打印
+      </label>
+      <label class="switch-label">
+        <input type="checkbox" id="sound" checked />
+        提示音
+      </label>
+      <span class="dot" id="liveDot" title="实时刷新中"></span>
+      <span class="muted" id="lastUpdate"></span>
+    </div>
+  </header>
+
+  <nav class="main-nav">
+    <button class="nav-btn active" data-view="orders">📋 订单管理</button>
+    <button class="nav-btn" data-view="tables">🔖 桌台二维码</button>
+    <button class="nav-btn" data-view="stats">📊 营业额统计</button>
+  </nav>
+
+  <!-- ===== 订单管理 ===== -->
+  <section id="view-orders" class="view">
+    <div class="tabs">
+      <button class="tab active" data-filter="pending">待处理 <span id="cntPending" class="badge">0</span></button>
+      <button class="tab" data-filter="done">已完成 <span id="cntDone" class="badge">0</span></button>
+      <button class="tab" data-filter="all">全部</button>
+    </div>
+    <main id="orders" class="orders"></main>
+  </section>
+
+  <!-- ===== 桌台二维码 ===== -->
+  <section id="view-tables" class="view hidden">
+    <div class="table-add">
+      <input id="newTable" type="text" placeholder="输入桌号，如 A3 / 吧台2 / 卡座5" />
+      <button id="addTable" class="btn-primary">＋ 添加桌台</button>
+      <button id="printAllQr" class="btn-ghost">🖨 打印全部二维码</button>
+    </div>
+    <p class="muted nav-tip">顾客扫码后会自动带入对应桌号，无需手动填写。二维码指向当前访问地址，请用门店局域网 IP 访问本后台后再生成/打印。</p>
+    <div id="qrGrid" class="qr-grid"></div>
+  </section>
+
+  <!-- ===== 营业额统计 ===== -->
+  <section id="view-stats" class="view hidden">
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-label">今日营业额</div><div class="stat-val accent" id="stToday">¥0</div></div>
+      <div class="stat-card"><div class="stat-label">今日订单数</div><div class="stat-val" id="stTodayCount">0</div></div>
+      <div class="stat-card"><div class="stat-label">今日客单价</div><div class="stat-val" id="stAvg">¥0</div></div>
+      <div class="stat-card"><div class="stat-label">累计营业额</div><div class="stat-val" id="stTotal">¥0</div></div>
+      <div class="stat-card"><div class="stat-label">累计订单数</div><div class="stat-val" id="stTotalCount">0</div></div>
+    </div>
+
+    <h3 class="stat-h">近 7 天营业额</h3>
+    <div id="chart7" class="chart7"></div>
+
+    <h3 class="stat-h">热销榜（按销量）</h3>
+    <div id="topItems" class="top-items"></div>
+  </section>
+
+  <!-- 打印区：屏幕上隐藏，打印时显示 -->
+  <div id="printArea" class="print-area"></div>
+
+  <audio id="ding" preload="auto"
+    src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
+
+  <script src="admin.js"></script>
+</body>
+</html>

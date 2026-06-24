@@ -1,0 +1,4 @@
+node_modules/
+data/orders.json
+data/tables.json
+*.log

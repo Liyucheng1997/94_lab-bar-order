@@ -2,58 +2,164 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>🍸 点单 | The Bar</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0b09" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>点单 · The Bar</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1a85f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h14l-7 8-7-8Z'/%3E%3Cpath d='M12 12v8M8 20h8'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="customer.css" />
 </head>
-<body class="customer">
-  <header class="c-header">
-    <h1>🍸 The Bar</h1>
-    <p>扫码点单 · 自助下单</p>
-  </header>
-
-  <div class="seat-bar" id="seatBar">
-    <label for="table">座位号 / 桌号 <span id="seatHint" class="muted"></span></label>
-    <input id="table" type="text" inputmode="text" placeholder="例如：A3 / 吧台2" />
-  </div>
-
-  <main id="menu" class="menu"></main>
-
-  <!-- 底部购物车栏 -->
-  <div id="cartBar" class="cart-bar hidden">
-    <div class="cart-summary" id="cartSummary">
-      <span id="cartCount">0</span> 件 · ¥<span id="cartTotal">0</span>
-    </div>
-    <button id="openCart" class="btn-primary">查看购物车</button>
-  </div>
-
-  <!-- 购物车弹层 -->
-  <div id="cartModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-head">
-        <h2>购物车</h2>
-        <button id="closeCart" class="icon-btn">✕</button>
+<body>
+  <div class="app" id="app">
+    <!-- 顶部 Hero -->
+    <header class="hero">
+      <div class="hero-glow"></div>
+      <div class="hero-top">
+        <button class="table-chip" id="tableChip" type="button">
+          <span class="table-chip-icon" data-icon="seat"></span>
+          <span id="tableChipText">选择桌号</span>
+        </button>
+        <div class="hero-actions">
+          <button class="round-btn" id="ordersBtn" type="button" aria-label="我的订单">
+            <span data-icon="receipt"></span><i class="dot-badge hidden" id="ordersBadge"></i>
+          </button>
+          <button class="round-btn" id="callBtn" type="button" aria-label="呼叫服务">
+            <span data-icon="bell"></span>
+          </button>
+        </div>
       </div>
-      <div id="cartItems" class="cart-items"></div>
-      <textarea id="note" placeholder="备注（例如：少冰、不要香菜...）"></textarea>
-      <div class="modal-foot">
-        <div class="total-line">合计 <strong>¥<span id="modalTotal">0</span></strong></div>
-        <button id="submitOrder" class="btn-primary big">提交订单</button>
+      <div class="hero-body">
+        <p class="hero-eyebrow" id="greeting">Good Evening</p>
+        <h1 class="hero-title" id="shopName">The Bar</h1>
+        <p class="hero-tagline" id="tagline"></p>
+      </div>
+      <div class="notice hidden" id="notice"><span data-icon="sparkle"></span><span id="noticeText"></span></div>
+    </header>
+
+    <!-- 分类导航 -->
+    <nav class="cat-nav" id="catNav"><div class="cat-nav-inner" id="catNavInner"></div></nav>
+
+    <!-- 今夜推荐 -->
+    <section class="featured hidden" id="featured">
+      <div class="section-head">
+        <h2>今夜推荐</h2><span class="section-en">Tonight's Picks</span>
+      </div>
+      <div class="featured-track" id="featuredTrack"></div>
+    </section>
+
+    <main class="menu" id="menu">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </main>
+
+    <footer class="foot">
+      <div class="foot-rule"><span>✦</span></div>
+      <p>请理性饮酒 · 未成年人请勿饮酒</p>
+      <p class="foot-sub">Please drink responsibly</p>
+    </footer>
+  </div>
+
+  <!-- 底部购物车 -->
+  <div class="dock" id="dock">
+    <button class="dock-bag" id="dockBag" type="button" aria-label="查看购物车">
+      <span data-icon="bag"></span><b class="dock-count" id="dockCount">0</b>
+    </button>
+    <button class="dock-info" id="dockInfo" type="button">
+      <span class="dock-total">¥<b id="dockTotal">0</b></span>
+      <span class="dock-sub" id="dockSub">未选购商品</span>
+    </button>
+    <button class="dock-go" id="dockGo" type="button">选好了</button>
+  </div>
+
+  <!-- 弹层 -->
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- 商品详情 -->
+  <section class="sheet" id="itemSheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <button class="sheet-close" data-close type="button" aria-label="关闭"><span data-icon="close"></span></button>
+    <div class="sheet-body" id="itemSheetBody"></div>
+    <div class="sheet-foot" id="itemSheetFoot"></div>
+  </section>
+
+  <!-- 购物车 -->
+  <section class="sheet" id="cartSheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <h3>已选商品</h3>
+      <button class="text-btn" id="clearCart" type="button">清空</button>
+    </div>
+    <div class="sheet-body">
+      <button class="deliver-row" id="deliverRow" type="button">
+        <span class="deliver-icon" data-icon="seat"></span>
+        <span class="deliver-text"><small>送至</small><b id="deliverTable">请选择桌号</b></span>
+        <span class="deliver-change">更换 <span data-icon="chevron"></span></span>
+      </button>
+      <div class="cart-lines" id="cartLines"></div>
+      <div class="note-box">
+        <label for="note">备注</label>
+        <div class="note-chips" id="noteChips"></div>
+        <textarea id="note" rows="2" maxlength="200" placeholder="口味偏好、过敏信息、上酒顺序等"></textarea>
       </div>
     </div>
-  </div>
-
-  <!-- 下单成功 -->
-  <div id="successModal" class="modal hidden">
-    <div class="modal-content center">
-      <div class="success-icon">✓</div>
-      <h2>下单成功！</h2>
-      <p class="order-no" id="successNo"></p>
-      <p class="muted">请耐心等待，服务员会尽快为您送上 🍻</p>
-      <button id="newOrder" class="btn-primary big">再点一单</button>
+    <div class="sheet-foot">
+      <div class="sum-row"><span>合计</span><span class="sum-val">¥<b id="cartSum">0</b></span></div>
+      <button class="primary-btn" id="submitOrder" type="button">确认下单</button>
     </div>
-  </div>
+  </section>
 
+  <!-- 桌号 -->
+  <section class="sheet" id="tableSheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h3>您坐在哪里？</h3></div>
+    <div class="sheet-body">
+      <p class="sheet-hint">请选择或输入桌号，我们会把酒送到您面前</p>
+      <div class="table-grid" id="tableGrid"></div>
+      <div class="field">
+        <input id="tableInput" type="text" maxlength="20" placeholder="或手动输入，如 A3 / 吧台 2" />
+      </div>
+    </div>
+    <div class="sheet-foot"><button class="primary-btn" id="tableConfirm" type="button">确定</button></div>
+  </section>
+
+  <!-- 呼叫服务 -->
+  <section class="sheet" id="callSheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h3>需要什么帮助？</h3></div>
+    <div class="sheet-body">
+      <p class="sheet-hint" id="callHint"></p>
+      <div class="call-grid">
+        <button class="call-card" data-call="waiter" type="button"><span data-icon="bell"></span><b>呼叫服务员</b><small>Service</small></button>
+        <button class="call-card" data-call="bill" type="button"><span data-icon="card"></span><b>买单结账</b><small>Bill, please</small></button>
+        <button class="call-card" data-call="water" type="button"><span data-icon="water"></span><b>冰水 / 纸巾</b><small>Water & napkins</small></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 我的订单 -->
+  <section class="sheet" id="ordersSheet" role="dialog" aria-modal="true">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header"><h3>我的订单</h3></div>
+    <div class="sheet-body" id="ordersList"></div>
+  </section>
+
+  <!-- 订单追踪（全屏） -->
+  <section class="track" id="track" aria-live="polite">
+    <div class="track-top">
+      <button class="round-btn" id="trackClose" type="button" aria-label="返回菜单"><span data-icon="back"></span></button>
+      <span class="track-top-title">订单详情</span>
+      <span style="width:40px"></span>
+    </div>
+    <div class="track-body" id="trackBody"></div>
+    <div class="track-foot">
+      <button class="ghost-btn" id="trackCall" type="button"><span data-icon="bell"></span>呼叫服务</button>
+      <button class="primary-btn" id="trackMore" type="button">继续点单</button>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="icons.js"></script>
   <script src="customer.js"></script>
 </body>
 </html>

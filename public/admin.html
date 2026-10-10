@@ -3,76 +3,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>商家后台 | The Bar</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#0f0d0b" />
+  <title>商家后台 · The Bar</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1a85f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 4h14l-7 8-7-8Z'/%3E%3Cpath d='M12 12v8M8 20h8'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="admin.css" />
 </head>
-<body class="admin">
-  <header class="a-header">
-    <h1>🍸 商家后台</h1>
-    <div class="a-controls">
-      <label class="switch-label">
-        <input type="checkbox" id="autoPrint" />
-        新订单自动打印
-      </label>
-      <label class="switch-label">
-        <input type="checkbox" id="sound" checked />
-        提示音
-      </label>
-      <span class="dot" id="liveDot" title="实时刷新中"></span>
-      <span class="muted" id="lastUpdate"></span>
+<body>
+  <!-- ===== 登录 ===== -->
+  <div class="login hidden" id="login">
+    <form class="login-card" id="loginForm" autocomplete="off">
+      <div class="login-mark" data-icon="glass"></div>
+      <h1 class="login-shop" id="loginShop">The Bar</h1>
+      <p class="login-sub">Merchant Console · 商家后台</p>
+      <label class="login-label" for="pin">请输入管理 PIN</label>
+      <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" autofocus />
+      <p class="login-err" id="loginErr"></p>
+      <button class="btn btn-gold btn-lg" type="submit">进入后台</button>
+      <p class="login-hint">首次使用默认 PIN 为 <b>8888</b>，登录后请在「店铺设置」中修改</p>
+    </form>
+  </div>
+
+  <!-- ===== 主框架 ===== -->
+  <div class="shell hidden" id="shell">
+    <aside class="side">
+      <div class="brand">
+        <div class="brand-mark" data-icon="glass"></div>
+        <div>
+          <div class="brand-name" id="brandName">The Bar</div>
+          <div class="brand-sub">Merchant Console</div>
+        </div>
+      </div>
+
+      <nav class="nav" id="nav">
+        <button class="nav-item active" data-view="orders" type="button"><span data-icon="orders"></span><span>实时订单</span><b class="nav-badge hidden" id="navPending">0</b></button>
+        <button class="nav-item" data-view="history" type="button"><span data-icon="history"></span><span>历史订单</span></button>
+        <button class="nav-item" data-view="menu" type="button"><span data-icon="menu"></span><span>菜单管理</span></button>
+        <button class="nav-item" data-view="tables" type="button"><span data-icon="qr"></span><span>桌台二维码</span></button>
+        <button class="nav-item" data-view="stats" type="button"><span data-icon="chart"></span><span>营业统计</span></button>
+        <button class="nav-item" data-view="settings" type="button"><span data-icon="settings"></span><span>店铺设置</span></button>
+      </nav>
+
+      <div class="side-foot">
+        <div class="conn" id="conn"><i></i><span>连接中…</span></div>
+        <button class="nav-item" id="logout" type="button"><span data-icon="logout"></span><span>退出登录</span></button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="page-title">
+          <h1 id="pageTitle">实时订单</h1>
+          <p id="pageSub"></p>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><small>今日营业额</small><b id="kpiRevenue">¥0</b></div>
+          <div class="kpi"><small>今日订单</small><b id="kpiCount">0</b></div>
+          <div class="kpi"><small>待处理</small><b id="kpiActive">0</b></div>
+        </div>
+        <div class="toggles">
+          <label class="switch" title="新订单与服务呼叫时播放提示音"><input type="checkbox" id="optSound" /><i></i><span>提示音</span></label>
+          <label class="switch" title="未接单时每 30 秒重复提醒"><input type="checkbox" id="optRemind" /><i></i><span>催单提醒</span></label>
+          <label class="switch" title="接到新订单自动弹出打印"><input type="checkbox" id="optPrint" /><i></i><span>自动打印</span></label>
+          <div class="clock" id="clock">--:--</div>
+        </div>
+      </header>
+
+      <button class="alert-banner hidden" id="audioBanner" type="button">
+        <span data-icon="volume"></span>
+        <span>浏览器需要一次点击才能播放声音 —— <b>点此启用新订单提示音</b></span>
+      </button>
+
+      <!-- 实时订单 -->
+      <section class="view" id="view-orders">
+        <div class="calls hidden" id="calls"></div>
+        <div class="board">
+          <div class="col col-pending">
+            <div class="col-head"><span class="col-dot"></span><h2>新订单</h2><b id="cntPending">0</b><small>等待接单</small></div>
+            <div class="col-body" id="colPending"></div>
+          </div>
+          <div class="col col-making">
+            <div class="col-head"><span class="col-dot"></span><h2>制作中</h2><b id="cntMaking">0</b><small>调制 / 备餐</small></div>
+            <div class="col-body" id="colMaking"></div>
+          </div>
+          <div class="col col-done">
+            <div class="col-head"><span class="col-dot"></span><h2>已出品</h2><b id="cntDone">0</b><small>今日</small></div>
+            <div class="col-body" id="colDone"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 历史订单 -->
+      <section class="view hidden" id="view-history">
+        <div class="toolbar">
+          <input type="date" id="hDate" class="input" />
+          <select id="hStatus" class="input">
+            <option value="">全部状态</option>
+            <option value="pending">待接单</option>
+            <option value="making">制作中</option>
+            <option value="done">已完成</option>
+            <option value="cancelled">已取消</option>
+          </select>
+          <div class="search"><span data-icon="search"></span><input id="hSearch" class="input" placeholder="搜索订单号 / 桌号 / 品项" /></div>
+          <div class="toolbar-gap"></div>
+          <span class="muted" id="hSummary"></span>
+          <a class="btn btn-ghost" href="/api/admin/export.csv"><span data-icon="download"></span>导出 CSV</a>
+        </div>
+        <div class="panel table-wrap">
+          <table class="dtable">
+            <thead><tr><th>订单号</th><th>桌号</th><th>下单时间</th><th>品项</th><th class="r">金额</th><th>状态</th><th class="r">操作</th></tr></thead>
+            <tbody id="hBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 菜单管理 -->
+      <section class="view hidden" id="view-menu">
+        <div class="toolbar">
+          <button class="btn btn-gold" id="addItem" type="button"><span data-icon="plus"></span>新增商品</button>
+          <button class="btn btn-ghost" id="addCat" type="button"><span data-icon="plus"></span>新增分类</button>
+          <div class="toolbar-gap"></div>
+          <span class="muted">修改后即时同步到所有顾客手机 · 售罄商品顾客无法下单</span>
+        </div>
+        <div id="menuEditor"></div>
+      </section>
+
+      <!-- 桌台二维码 -->
+      <section class="view hidden" id="view-tables">
+        <div class="toolbar">
+          <input id="newTable" class="input" placeholder="桌号，如 A3 / 吧台2 / 卡座5" maxlength="20" />
+          <button id="addTable" class="btn btn-gold" type="button"><span data-icon="plus"></span>添加桌台</button>
+          <button id="batchTable" class="btn btn-ghost" type="button">批量添加</button>
+          <div class="toolbar-gap"></div>
+          <button id="printAllQr" class="btn btn-ghost" type="button"><span data-icon="printer"></span>打印全部桌卡</button>
+        </div>
+        <p class="tip" id="qrTip"></p>
+        <div id="qrGrid" class="qr-grid"></div>
+      </section>
+
+      <!-- 营业统计 -->
+      <section class="view hidden" id="view-stats">
+        <div class="stat-grid" id="statCards"></div>
+        <div class="stat-row">
+          <div class="panel chart-panel">
+            <div class="panel-head"><h3>近 7 天营业额</h3><span class="muted" id="st7Sum"></span></div>
+            <div id="chart7" class="chart"></div>
+          </div>
+          <div class="panel chart-panel">
+            <div class="panel-head"><h3>今日分时段</h3><span class="muted">按下单时间</span></div>
+            <div id="chartHour" class="chart"></div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="panel">
+            <div class="panel-head"><h3>热销榜</h3><span class="muted">按销量 · 累计</span></div>
+            <div id="topItems"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3>品类构成</h3><span class="muted">按营业额 · 累计</span></div>
+            <div id="catShare"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 店铺设置 -->
+      <section class="view hidden" id="view-settings">
+        <div class="settings">
+          <form class="panel form" id="shopForm">
+            <div class="panel-head"><h3>店铺信息</h3><span class="muted">显示在顾客点单页与小票上</span></div>
+            <label class="fld"><span>店名</span><input class="input" id="sName" maxlength="30" /></label>
+            <label class="fld"><span>标语</span><input class="input" id="sTagline" maxlength="60" /></label>
+            <label class="fld"><span>顾客公告</span><input class="input" id="sNotice" maxlength="120" placeholder="如：今晚 21:00 驻唱 · 第二杯半价" /></label>
+            <div class="form-foot"><button class="btn btn-gold" type="submit">保存</button></div>
+          </form>
+          <form class="panel form" id="pinForm">
+            <div class="panel-head"><h3>安全</h3><span class="muted">修改后台登录 PIN</span></div>
+            <label class="fld"><span>新 PIN</span><input class="input" id="sPin" type="password" inputmode="numeric" maxlength="8" placeholder="4–8 位数字" /></label>
+            <div class="form-foot"><button class="btn btn-ghost" type="submit">更新 PIN</button></div>
+          </form>
+          <div class="panel form">
+            <div class="panel-head"><h3>提醒与设备</h3><span class="muted">建议吧台电脑保持本页常开</span></div>
+            <div class="set-row"><div><b>测试提示音</b><small>确认音箱音量合适</small></div><div class="set-actions"><button class="btn btn-ghost" id="testOrderSound" type="button">新订单音</button><button class="btn btn-ghost" id="testCallSound" type="button">呼叫音</button></div></div>
+            <div class="set-row"><div><b>系统通知</b><small id="notifState">切到其他窗口时也能弹出提醒</small></div><button class="btn btn-ghost" id="notifBtn" type="button">开启系统通知</button></div>
+            <div class="set-row"><div><b>顾客点单链接</b><small id="custLink"></small></div><a class="btn btn-ghost" href="/" target="_blank" rel="noopener">打开预览</a></div>
+            <div class="set-row"><div><b>数据导出</b><small>全部订单 CSV，可用 Excel 打开</small></div><a class="btn btn-ghost" href="/api/admin/export.csv"><span data-icon="download"></span>导出</a></div>
+          </div>
+        </div>
+      </section>
     </div>
-  </header>
+  </div>
 
-  <nav class="main-nav">
-    <button class="nav-btn active" data-view="orders">📋 订单管理</button>
-    <button class="nav-btn" data-view="tables">🔖 桌台二维码</button>
-    <button class="nav-btn" data-view="stats">📊 营业额统计</button>
-  </nav>
+  <!-- 通知 -->
+  <div class="toasts" id="toasts"></div>
 
-  <!-- ===== 订单管理 ===== -->
-  <section id="view-orders" class="view">
-    <div class="tabs">
-      <button class="tab active" data-filter="pending">待处理 <span id="cntPending" class="badge">0</span></button>
-      <button class="tab" data-filter="done">已完成 <span id="cntDone" class="badge">0</span></button>
-      <button class="tab" data-filter="all">全部</button>
-    </div>
-    <main id="orders" class="orders"></main>
-  </section>
+  <!-- 通用弹窗 -->
+  <div class="modal hidden" id="modal">
+    <div class="modal-card" id="modalCard"></div>
+  </div>
 
-  <!-- ===== 桌台二维码 ===== -->
-  <section id="view-tables" class="view hidden">
-    <div class="table-add">
-      <input id="newTable" type="text" placeholder="输入桌号，如 A3 / 吧台2 / 卡座5" />
-      <button id="addTable" class="btn-primary">＋ 添加桌台</button>
-      <button id="printAllQr" class="btn-ghost">🖨 打印全部二维码</button>
-    </div>
-    <p class="muted nav-tip">顾客扫码后会自动带入对应桌号，无需手动填写。二维码指向当前访问地址，请用门店局域网 IP 访问本后台后再生成/打印。</p>
-    <div id="qrGrid" class="qr-grid"></div>
-  </section>
-
-  <!-- ===== 营业额统计 ===== -->
-  <section id="view-stats" class="view hidden">
-    <div class="stat-cards">
-      <div class="stat-card"><div class="stat-label">今日营业额</div><div class="stat-val accent" id="stToday">¥0</div></div>
-      <div class="stat-card"><div class="stat-label">今日订单数</div><div class="stat-val" id="stTodayCount">0</div></div>
-      <div class="stat-card"><div class="stat-label">今日客单价</div><div class="stat-val" id="stAvg">¥0</div></div>
-      <div class="stat-card"><div class="stat-label">累计营业额</div><div class="stat-val" id="stTotal">¥0</div></div>
-      <div class="stat-card"><div class="stat-label">累计订单数</div><div class="stat-val" id="stTotalCount">0</div></div>
-    </div>
-
-    <h3 class="stat-h">近 7 天营业额</h3>
-    <div id="chart7" class="chart7"></div>
-
-    <h3 class="stat-h">热销榜（按销量）</h3>
-    <div id="topItems" class="top-items"></div>
-  </section>
-
-  <!-- 打印区：屏幕上隐藏，打印时显示 -->
+  <!-- 打印区：屏幕隐藏，打印时显示 -->
   <div id="printArea" class="print-area"></div>
 
-  <audio id="ding" preload="auto"
-    src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
-
+  <script src="icons.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
